@@ -11,7 +11,7 @@ jobs:
   comments:
     name: get PR SHA
     runs-on: ubuntu-20.04
-    #if: ${{ github.event.issue.pull_request && github.event.comment.body == '/deploy'}}
+    if: ${{ github.event.comment.body == '/deploydb'}}
     steps:
     
     - name: Add Comment
