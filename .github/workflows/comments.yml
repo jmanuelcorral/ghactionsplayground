@@ -30,8 +30,9 @@ jobs:
       with:
         script: |
           let body =  context.payload.comment.body;
-          let envtodeploy = body.replace('/deploydb','').split(' ')[0].toLowerCase();
+          let envtodeploy = body.replace('/deploydb','').replace(' ','').toLowerCase();
           let labelstoadd = ['sqldeploy']
+          console.log(envtodeploy);
           if (envtodeploy === 'dev') labelstoadd.push('sqldev')
           else if (envtodeploy === 'pre') labelstoadd.push('sqlpre')
           else if (envtodeploy === 'pro') labelstoadd.push('sqlpro')
