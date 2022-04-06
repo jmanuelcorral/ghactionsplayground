@@ -29,6 +29,7 @@ jobs:
     - uses: actions/github-script@v6
       with:
         script: |
+          console.log(context);
           let body =  context.issue.comment.body;
           let envtodeploy = body.remove('/deploydb').split()[0].toLowerCase();
           let labelstoadd = ['sqldeploy']
