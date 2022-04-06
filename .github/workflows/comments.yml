@@ -23,25 +23,20 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: 'You can see this workflow running on: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
+            body: 'You have ordered a Database Deploy, You can see this workflow running on: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
           });  
-    - name: Get PR SHA
-      id: sha
-      uses: actions/github-script@v4
+
+    - uses: actions/github-script@v6
       with:
-        result-encoding: string
         script: |
-          const { owner, repo, number } = context.issue;
-          const pr = await github.pulls.get({
-            owner,
-            repo,
-            pull_number: number,
-          });
-          return pr.data.head.sha    
+          github.rest.issues.addLabels({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: ['sqldeploy']
+          })    
 
     - uses: actions/checkout@v2
-      with:
-        ref: ${{ steps.sha.outputs.result }}
 
     - name: Fail randomly
       run: |
