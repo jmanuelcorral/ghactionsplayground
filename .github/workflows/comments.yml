@@ -9,7 +9,7 @@ on:
 # idea from : https://pakstech.com/blog/gh-actions-issue-comments/
 jobs:
   comments:
-    name: get PR SHA
+    name: Process a Deploy
     runs-on: ubuntu-20.04
     if: ${{ contains(github.event.comment.body , '/deploydb')}}
     steps:
@@ -29,12 +29,20 @@ jobs:
     - uses: actions/github-script@v6
       with:
         script: |
-          github.rest.issues.addLabels({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            labels: ['sqldeploy']
-          })    
+          let body = github.event.comment.body;
+          let envtodeploy = body.remove('/deploydb').split()[0].toLowerCase();
+          let labelstoadd = ['sqldeploy']
+          if (envtodeploy === 'dev') labelstoadd.push('sqldev')
+          else if (envtodeploy === 'pre') labelstoadd.push('sqlpre')
+          else if (envtodeploy === 'pro') labelstoadd.push('sqlpro')
+          if (labelstoadd.length == 2)
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: labelstoadd
+            });    
+          else throw "Environment errors"
 
     - uses: actions/checkout@v2
 
