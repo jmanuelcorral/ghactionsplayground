@@ -18,11 +18,12 @@ jobs:
       uses: actions/github-script@v6
       with:
         script: |
-          console.log(context);
+          console.log(context.repo);
+          console.log(context.repository);
           github.issues.createComment({
             issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
+            owner: context.repository.owner,
+            repo: context.repository.repo,
             body: 'You have ordered a Database Deploy, You can see this workflow running on: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
           });  
 
