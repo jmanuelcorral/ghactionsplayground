@@ -15,15 +15,15 @@ jobs:
     steps:
     
     - name: Add Comment
-      uses: actions/github-script@v6
+      uses: actions/github-script@v4
       with:
         script: |
-          console.log(context.repo);
-          console.log(context.repository);
+          console.log(github);
+          console.log(github.issues);
           github.issues.createComment({
             issue_number: context.issue.number,
-            owner: context.repository.owner,
-            repo: context.repository.repo,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
             body: 'You have ordered a Database Deploy, You can see this workflow running on: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
           });  
 
