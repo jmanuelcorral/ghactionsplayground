@@ -55,9 +55,9 @@ jobs:
             });    
           else throw "Environment errors"
 
-    - uses: actions/checkout@v3
-      with:
-        ref: my-branch
+    # - uses: actions/checkout@v3
+    #   with:
+    #     ref: my-branch
 
     - name: Fail randomly
       run: |
