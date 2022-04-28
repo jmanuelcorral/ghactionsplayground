@@ -24,6 +24,9 @@ jobs:
             repo: context.repo.repo,
             body: 'You have ordered a Database Deploy, You can see this workflow running on: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
           });  
+     
+    - name: Run branch name
+      run: echo running on branch ${GITHUB_REF##*/}
 
     - uses: actions/github-script@v6
       with:
@@ -34,7 +37,15 @@ jobs:
           console.log(envtodeploy);
           if (envtodeploy === 'dev') labelstoadd.push('sqldev')
           else if (envtodeploy === 'pre') labelstoadd.push('sqlpre')
-          else if (envtodeploy === 'pro') labelstoadd.push('sqlpro')
+          else if (envtodeploy === 'pro') {
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'You have ordered a Database Deploy from a PullRequest comment, This is not possible allowed',
+            });  
+            throw "Invalid Environment"
+            }
           if (labelstoadd.length == 2)
             github.rest.issues.addLabels({
               issue_number: context.issue.number,
@@ -44,7 +55,9 @@ jobs:
             });    
           else throw "Environment errors"
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
+      with:
+        ref: my-branch
 
     - name: Fail randomly
       run: |
