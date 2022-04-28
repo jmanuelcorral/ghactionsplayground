@@ -11,8 +11,25 @@ jobs:
   comments:
     name: Process a Deploy
     runs-on: ubuntu-20.04
-    if: ${{ contains(github.event.comment.body , '/deploydb')}}
+    if: ${{ contains(github.event.comment.body , '/deploydb')  &&  github.event.issue.pull_request }}
     steps:
+
+    - uses: actions/github-script@v3
+      id: get-pr
+      with:
+        script: |
+          const request = {
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number
+          }
+          core.info(`Getting PR #${request.pull_number} from ${request.owner}/${request.repo}`)
+          try {
+            const result = await github.pulls.get(request)
+            return result.data
+          } catch (err) {
+            core.setFailed(`Request failed with error ${err}`)
+          }
     
     - name: Add Comment
       uses: actions/github-script@v6
@@ -22,12 +39,9 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: 'You have ordered a Database Deploy, You can see this workflow running on: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
+            body: 'You have ordered a Database Deploy from branch ${{ fromJSON(steps.get-pr.outputs.result).head.ref }}, You can see this workflow running on: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
           });  
      
-    - name: Run branch name
-      run: echo running on branch ${GITHUB_REF##*/}
-
     - uses: actions/github-script@v6
       with:
         script: |
@@ -55,10 +69,10 @@ jobs:
             });    
           else throw "Environment errors"
 
-    # - uses: actions/checkout@v3
-    #   with:
-    #     ref: my-branch
-
+    - uses: actions/checkout@v2
+      with:
+        repository: ${{ fromJSON(steps.get-pr.outputs.result).head.repo.full_name }}
+        ref: ${{ fromJSON(steps.get-pr.outputs.result).head.sha }} # or .head.ref for branch name
     - name: Fail randomly
       run: |
         cat README.md
