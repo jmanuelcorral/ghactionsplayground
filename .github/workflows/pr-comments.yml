@@ -1,5 +1,5 @@
 ---
-name: comments recipe on issues
+name: comments recipe on pull requests
 
 on:
   issues:
